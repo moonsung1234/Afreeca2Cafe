@@ -182,8 +182,6 @@ function write_post(title, content, _path) {
         }
     }
     
-    console.log(options);
-
     return new Promise((resolve, reject) => {
         request.post(options, (err, res, body) => {
             console.log(res.statusCode);
@@ -200,9 +198,11 @@ function write_post(title, content, _path) {
 
 async function run() {
     try {
-        // console.log(await get_new_token());
+        console.log(await get_new_token());
+        
         let title = await post2image("post.png");
         console.log(title);
+        
         console.log(await write_post(title, "공지", "post.png"));
 
     } catch(err) {
