@@ -1,0 +1,11 @@
+
+# env file
+env.json
+
+# modules
+node_modules
+package-lock.json
+
+# image
+post.png
+
