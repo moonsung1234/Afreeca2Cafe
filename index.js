@@ -106,9 +106,11 @@ async function get_new_token() {
 }
 
 async function get_latest_post() {
-    let browser = await puppeteer.launch({
-        executablePath : "/usr/bin/chromium-browser"
-    });
+    let browser = await puppeteer.launch(
+        // {
+        //     executablePath : "/usr/bin/chromium-browser"
+        // }
+    );
     let page = await browser.newPage();
 
     // set viewport
@@ -146,9 +148,11 @@ async function get_latest_post() {
 }
 
 async function post2image(url, _path) {
-    let browser = await puppeteer.launch({
-        executablePath : "/usr/bin/chromium-browser"
-    });
+    let browser = await puppeteer.launch(
+        // {
+        //     executablePath : "/usr/bin/chromium-browser"
+        // }
+    );
     let page = await browser.newPage();
     
     // set viewport
