@@ -267,31 +267,11 @@ async function run(type, title, url) {
 })();
 
 let before = null;
-let iter = setInterval(async () => {
-    let temp = new Date();
-    let date = new Date(temp.setHours(temp.getHours() + 9));
-    let type, title, url;
-    
-    console.log(date);
-    
-    try {
-        [type, title, url] = await get_latest_post();
-        title = "[아프리카 공지] " + title;
-        
-        console.log(type, title, url);
-        
-    } catch(err) {
-        console.error("List Crowling Error : ", err);
+let iter;
 
-        return;
-    }
-
-    if(title + url != before) {
-        await run(type, title, url);
-
-        before = title + url;
-    }
-}, DELAY);
+app.get("/", (req, res) => {
+    res.send("afreeca to cafe server");
+});
 
 // app.get("/auth", async (req, res) => {
 //     let code = req.query.code;
@@ -303,8 +283,34 @@ let iter = setInterval(async () => {
 //     await run();
 // });
 
-// app.listen(80, () => {
-//     console.log("Server Run!");
-// });
+app.listen(80, () => {
+    console.log("Server Run!");
+
+    iter = setInterval(async () => {
+        let temp = new Date();
+        let date = new Date(temp.setHours(temp.getHours() + 9));
+        let type, title, url;
+        
+        console.log(date);
+        
+        try {
+            [type, title, url] = await get_latest_post();
+            title = "[아프리카 공지] " + title;
+            
+            console.log(type, title, url);
+            
+        } catch(err) {
+            console.error("List Crowling Error : ", err);
+    
+            return;
+        }
+    
+        if(title + url != before) {
+            await run(type, title, url);
+    
+            before = title + url;
+        }
+    }, DELAY);
+});
 
 
