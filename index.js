@@ -267,31 +267,35 @@ async function run(type, title, url) {
 })();
 
 let before = null;
-let iter = setInterval(async () => {
-    let temp = new Date();
-    let date = new Date(temp.setHours(temp.getHours() + 9));
-    let type, title, url;
+// let iter = setInterval(async () => {
+//     let temp = new Date();
+//     let date = new Date(temp.setHours(temp.getHours() + 9));
+//     let type, title, url;
     
-    console.log(date);
+//     console.log(date);
     
-    try {
-        [type, title, url] = await get_latest_post();
-        title = "[아프리카 공지] " + title;
+//     try {
+//         [type, title, url] = await get_latest_post();
+//         title = "[아프리카 공지] " + title;
         
-        console.log(type, title, url);
+//         console.log(type, title, url);
         
-    } catch(err) {
-        console.error("List Crowling Error : ", err);
+//     } catch(err) {
+//         console.error("List Crowling Error : ", err);
 
-        return;
-    }
+//         return;
+//     }
 
-    if(title + url != before) {
-        await run(type, title, url);
+//     if(title + url != before) {
+//         await run(type, title, url);
 
-        before = title + url;
-    }
-}, DELAY);
+//         before = title + url;
+//     }
+// }, DELAY);
+
+(async () => {
+    console.log(await get_latest_post());
+})();
 
 // app.get("/", (req, res) => {
 //     res.send("afreeca to cafe server");
