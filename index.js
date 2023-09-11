@@ -106,7 +106,9 @@ async function get_new_token() {
 }
 
 async function get_latest_post() {
-    let browser = await puppeteer.launch();
+    let browser = await puppeteer.launch({
+        executablePath : "/usr/bin/chromium-browser"
+    });
     let page = await browser.newPage();
 
     // set viewport
@@ -144,7 +146,9 @@ async function get_latest_post() {
 }
 
 async function post2image(url, _path) {
-    let browser = await puppeteer.launch();
+    let browser = await puppeteer.launch({
+        executablePath : "/usr/bin/chromium-browser"
+    });
     let page = await browser.newPage();
     
     // set viewport
@@ -292,10 +296,6 @@ let before = null;
 //         before = title + url;
 //     }
 // }, DELAY);
-
-(async () => {
-    console.log(await get_latest_post());
-})();
 
 // app.get("/", (req, res) => {
 //     res.send("afreeca to cafe server");
