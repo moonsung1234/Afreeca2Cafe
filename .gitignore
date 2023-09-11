@@ -1,10 +1,10 @@
 
 # env file
-env.json
+# env.json
 
 # modules
 node_modules
-package-lock.json
+# package-lock.json
 
 # image
 post.png

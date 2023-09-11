@@ -10,7 +10,11 @@ let app = express();
 
 const DEFAULT_WIDTH = 2000;
 const DEFAULT_HEIGHT = 1000;
-
+const DELAY = 1000 * 60; // 1 minute
+const ENV_PATH = "env.json";
+const POST_PATH = "post.png";
+const VIDEO_TYPE = Symbol("video");
+const TEXT_TYPE = Symbol("text");
 
 function get_env(path) {
     return JSON.parse(fs.readFileSync(path, { encoding : "utf-8" }));
@@ -22,7 +26,7 @@ function set_env(path, env) {
     return env;
 }
 
-let env = get_env("./env.json"); 
+let env = get_env(ENV_PATH); 
 
 async function get_code() {
     let redirect_url = "http://localhost/auth";
@@ -101,7 +105,45 @@ async function get_new_token() {
     });
 }
 
-async function post2image(_path) {
+async function get_latest_post() {
+    let browser = await puppeteer.launch();
+    let page = await browser.newPage();
+
+    // set viewport
+    await page.setViewport({
+        width : DEFAULT_WIDTH,
+        height : DEFAULT_HEIGHT,
+        deviceScaleFactor : 1
+    });
+
+    // move post list
+    await page.goto("https://bj.afreecatv.com/devil0108/posts/67256714?page=1&months=3M", {
+        timeout : 0
+    });
+    await page.waitForNavigation();
+
+    // get title
+    let title = await page.waitForSelector("#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div.post_conts > a > div > div > strong");
+    title = await page.evaluate(element => element.textContent, title);
+
+    // get url of first post 
+    let post = await page.waitForSelector("#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div > a");
+    let post_url = await page.evaluate(element => element.getAttribute("href"), post);
+    let type; 
+
+    if(post_url.indexOf("vod.afreecatv.com") != -1) {
+        post_url = "https:" + post_url;
+        type = VIDEO_TYPE;
+
+    } else {
+        post_url = "https://bj.afreecatv.com" + post_url;
+        type = TEXT_TYPE;  
+    }
+
+    return [type, title, post_url];
+}
+
+async function post2image(url, _path) {
     let browser = await puppeteer.launch();
     let page = await browser.newPage();
     
@@ -112,18 +154,8 @@ async function post2image(_path) {
         deviceScaleFactor : 1
     });
 
-    // move post list
-    await page.goto("https://bj.afreecatv.com/devil0108/posts", {
-        timeout : 0
-    });
-    await page.waitForNavigation();
-
-    // get url of first post 
-    let post = await page.waitForSelector("#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div > a");
-    let post_url = "https://bj.afreecatv.com" + await page.evaluate(element => element.getAttribute("href"), post);
-
-    // move first post
-    await page.goto(post_url, {
+    // move post
+    await page.goto(url, {
         timeout : 0
     });
     await page.waitForNavigation();
@@ -136,11 +168,6 @@ async function post2image(_path) {
         console.log("ad is not existed");
     }
 
-    // get title
-    let title = await page.waitForSelector("#contents > div > div > div > div > section > section.post_header > div > h2");
-    title = await page.evaluate(element => element.textContent, title);
-    title = title.slice(2);
-
     // get content info
     let content = await page.waitForSelector("#contents > div > div > div > div > section > section.post_detail");
     let content_info = await content.boundingBox();
@@ -152,28 +179,36 @@ async function post2image(_path) {
     });
 
     await browser.close();
-
-    return title;
 }
 
-function write_post(title, content, _path) {
+function write_post(type, title, content, _path) {
     let header = "Bearer " + env.ACCESS_TOKEN;
     let _title = encodeURI(title);
     let _content = encodeURI(content); 
-    
-    let formData = {
-        subject : _title, 
-        content : _content,
-        image : [
-            {
-                value: fs.createReadStream(path.join(__dirname, _path)),
-                options: { 
-                    filename : _path,  
-                    contentType: "image/" + path.extname(_path).slice(1)
+    let formData;
+
+    if(type == TEXT_TYPE) {
+        formData = {
+            subject : _title, 
+            content : _content,
+            image : [
+                {
+                    value: fs.createReadStream(path.join(__dirname, _path)),
+                    options: { 
+                        filename : _path,  
+                        contentType: "image/" + path.extname(_path).slice(1)
+                    }
                 }
-            }
-        ]
+            ]
+        }
+        
+    } else if(type == VIDEO_TYPE) {
+        formData = {
+            subject : _title,
+            content : _content
+        }
     }
+    
     let options = {
         url : `https://openapi.naver.com/v1/cafe/${env.CLUB_ID}/menu/${env.MENU_ID}/articles`,
         formData,
@@ -196,23 +231,67 @@ function write_post(title, content, _path) {
     });
 }
 
-async function run() {
-    try {
-        console.log(await get_new_token());
-        
-        let title = await post2image("post.png");
-        console.log(title);
-        
-        console.log(await write_post(title, "공지", "post.png"));
+async function run(type, title, url) {
+    let content = "(이 글은 프로그램에 의해 자동적으로 작성되었습니다.)";
 
+    try {
+        if(type == TEXT_TYPE) {
+            await post2image(POST_PATH);   
+        }
+        
     } catch(err) {
-        console.error(err);
+        console.error("Post Crowling Error : ", err);
+
+        return;
+    }
+    
+    try {
+        if(type == TEXT_TYPE) {
+            console.log(await write_post(type, title, content, POST_PATH));
+
+        } else if(type == VIDEO_TYPE) {
+            content = `<a href=${url}>아프리카 다시보기 바로가기</a><br><br>${content}`;
+
+            console.log(await write_post(type, title, content, POST_PATH));
+        }
+        
+    } catch(err) {
+        console.error("Writing Error : ", err);
+        console.log(await get_new_token());
+        console.log(await write_post(type, title, content, POST_PATH));
     }
 }
 
-(async () => {
+(async() => {
     await run();
 })();
+
+let before = null;
+let iter = setInterval(async () => {
+    let temp = new Date();
+    let date = new Date(temp.setHours(temp.getHours() + 9));
+    let type, title, url;
+    
+    console.log(date);
+    
+    try {
+        [type, title, url] = await get_latest_post();
+        title = "[아프리카 공지] " + title;
+        
+        console.log(type, title, url);
+        
+    } catch(err) {
+        console.error("List Crowling Error : ", err);
+
+        return;
+    }
+
+    if(title + url != before) {
+        await run(type, title, url);
+
+        before = title + url;
+    }
+}, DELAY);
 
 // app.get("/auth", async (req, res) => {
 //     let code = req.query.code;
@@ -224,10 +303,8 @@ async function run() {
 //     await run();
 // });
 
-// app.listen(80, async () => {
-//     console.log("Redirect Server Run!");
-
-//     await get_code()
+// app.listen(80, () => {
+//     console.log("Server Run!");
 // });
 
 
