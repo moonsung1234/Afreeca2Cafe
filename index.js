@@ -238,6 +238,8 @@ function write_post(type, title, content, _path) {
 async function run(type, title, url) {
     let content = "(이 글은 프로그램에 의해 자동적으로 작성되었습니다.)";
 
+    console.log("run1");
+
     try {
         if(type == TEXT_TYPE) {
             await post2image(POST_PATH);   
@@ -249,6 +251,8 @@ async function run(type, title, url) {
         return;
     }
     
+    console.log("run2");
+
     try {
         if(type == TEXT_TYPE) {
             console.log(await write_post(type, title, content, POST_PATH));
@@ -264,10 +268,15 @@ async function run(type, title, url) {
         console.log(await get_new_token());
         console.log(await write_post(type, title, content, POST_PATH));
     }
+
+    
+    console.log("run3");
 }
 
 (async() => {
-    await run();
+    let [type, title, url] = await get_latest_post();
+
+    await run(type, title, url);
 })();
 
 let before = null;
