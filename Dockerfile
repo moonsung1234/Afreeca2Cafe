@@ -5,6 +5,7 @@ WORKDIR /app
 
 COPY ./index.js ./
 COPY ./package*.json ./
+COPY env.json ./
 # COPY ./configs/config.json ./configs/config.json
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true
