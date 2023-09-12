@@ -107,10 +107,12 @@ async function get_new_token() {
 
 async function get_latest_post() {
     let browser = await puppeteer.launch(
-        // {
-        //     executablePath : "./Application/chrome.exe",
-        //     args : ['--no-sandbox', '--disable-setuid-sandbox'],
-        // }
+        {
+            executablePath: '/usr/bin/chromium',
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            headless: true,
+            userDataDir: './user-data',
+        }
     );
     let page = await browser.newPage();
 
@@ -278,12 +280,12 @@ async function run(type, title, url) {
     console.log("run3");
 }
 
-(async() => {
-    let [type, title, url] = await get_latest_post();
+// (async() => {
+//     let [type, title, url] = await get_latest_post();
 
-    console.log(type, title, url);
-    // await run(type, title, url);
-})();
+//     console.log(type, title, url);
+//     // await run(type, title, url);
+// })();
 
 let before = null;
 // let iter = setInterval(async () => {
@@ -312,22 +314,22 @@ let before = null;
 //     }
 // }, DELAY);
 
-// app.get("/", (req, res) => {
-//     res.send("afreeca to cafe server");
-// });
+app.get("/", (req, res) => {
+    res.send("afreeca to cafe server");
+});
 
-// app.get("/auth", async (req, res) => {
-//     let code = req.query.code;
-//     env.CODE = code;
-//     env = set_env("env.json", env);
+app.get("/auth", async (req, res) => {
+    let code = req.query.code;
+    env.CODE = code;
+    env = set_env("env.json", env);
 
-//     console.log("code : ", code);
+    console.log("code : ", code);
 
-//     await run();
-// });
+    await run();
+});
 
-// app.listen(80, () => {
-//     console.log("Server Run!");
-// });
+app.listen(80, () => {
+    console.log("Server Run!");
+});
 
 
