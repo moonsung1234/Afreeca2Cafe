@@ -1,5 +1,5 @@
 
-FROM node:16-buster
+FROM node:16-alpine
 
 WORKDIR /app
 
