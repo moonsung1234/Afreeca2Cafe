@@ -107,7 +107,7 @@ async function get_new_token() {
 
 async function get_latest_post() {
     let browser = await puppeteer.launch({
-        // executablePath : "/usr/bin/chromium-browser",
+        executablePath : "/usr/bin/chromium-browser",
         args : [
             "--no-sandbox", 
             "--disable-dev-shm-usage"
@@ -151,7 +151,7 @@ async function get_latest_post() {
 
 async function post2image(url, _path) {
     let browser = await puppeteer.launch({
-        // executablePath : "/usr/bin/chromium-browser",
+        executablePath : "/usr/bin/chromium-browser",
         args : [
             "--no-sandbox", 
             "--disable-dev-shm-usage"
@@ -302,34 +302,6 @@ let iter = setInterval(async () => {
         console.log("send!");
     }
 }, DELAY);
-
-(async () => {
-    let temp = new Date();
-    let date = new Date(temp.setHours(temp.getHours() + 9));
-    let type, title, url;
-    
-    console.log(date);
-    
-    try {
-        [type, title, url] = await get_latest_post();
-        title = "[아프리카 공지] " + title;
-        
-        console.log(type, title, url);
-        
-    } catch(err) {
-        console.error("List Crowling Error : ", err);
-
-        return;
-    }
-
-    if(title + url != before) {
-        await run(type, title, url);
-
-        before = title + url;
-
-        console.log("send!");
-    }
-})();
 
 // app.get("/", (req, res) => {
 //     res.send("afreeca to cafe server");
