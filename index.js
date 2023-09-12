@@ -150,9 +150,9 @@ async function get_latest_post() {
 
 async function post2image(url, _path) {
     let browser = await puppeteer.launch(
-        // {
-        //     executablePath : "/usr/bin/chromium-browser"
-        // }
+        {
+            executablePath : "/usr/bin/chromium-browser"
+        }
     );
     let page = await browser.newPage();
     
