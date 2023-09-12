@@ -150,11 +150,13 @@ async function get_latest_post() {
 }
 
 async function post2image(url, _path) {
-    let browser = await puppeteer.launch(
-        {
-            executablePath : "/usr/bin/chromium-browser"
-        }
-    );
+    let browser = await puppeteer.launch({
+        executablePath : "/usr/bin/chromium-browser",
+        args : [
+            "--no-sandbox", 
+            "--disable-dev-shm-usage"
+        ]
+    });
     let page = await browser.newPage();
     
     // set viewport
@@ -244,8 +246,6 @@ function write_post(type, title, content, _path) {
 async function run(type, title, url) {
     let content = "(이 글은 프로그램에 의해 자동적으로 작성되었습니다.)";
 
-    console.log("run1");
-
     try {
         if(type == TEXT_TYPE) {
             await post2image(POST_PATH);   
@@ -256,8 +256,6 @@ async function run(type, title, url) {
 
         return;
     }
-    
-    console.log("run2");
 
     try {
         if(type == TEXT_TYPE) {
@@ -274,44 +272,36 @@ async function run(type, title, url) {
         console.log(await get_new_token());
         console.log(await write_post(type, title, content, POST_PATH));
     }
-
-    
-    console.log("run3");
 }
 
-(async() => {
-    let [type, title, url] = await get_latest_post();
-
-    console.log(type, title, url);
-    // await run(type, title, url);
-})();
-
 let before = null;
-// let iter = setInterval(async () => {
-//     let temp = new Date();
-//     let date = new Date(temp.setHours(temp.getHours() + 9));
-//     let type, title, url;
+let iter = setInterval(async () => {
+    let temp = new Date();
+    let date = new Date(temp.setHours(temp.getHours() + 9));
+    let type, title, url;
     
-//     console.log(date);
+    console.log(date);
     
-//     try {
-//         [type, title, url] = await get_latest_post();
-//         title = "[아프리카 공지] " + title;
+    try {
+        [type, title, url] = await get_latest_post();
+        title = "[아프리카 공지] " + title;
         
-//         console.log(type, title, url);
+        console.log(type, title, url);
         
-//     } catch(err) {
-//         console.error("List Crowling Error : ", err);
+    } catch(err) {
+        console.error("List Crowling Error : ", err);
 
-//         return;
-//     }
+        return;
+    }
 
-//     if(title + url != before) {
-//         await run(type, title, url);
+    if(title + url != before) {
+        await run(type, title, url);
 
-//         before = title + url;
-//     }
-// }, DELAY);
+        before = title + url;
+
+        console.log("send!");
+    }
+}, DELAY);
 
 // app.get("/", (req, res) => {
 //     res.send("afreeca to cafe server");
