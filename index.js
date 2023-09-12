@@ -107,10 +107,10 @@ async function get_new_token() {
 
 async function get_latest_post() {
     let browser = await puppeteer.launch(
-        {
-            executablePath : "/usr/bin/chromium",
-            args : ['--no-sandbox', '--disable-setuid-sandbox'],
-        }
+        // {
+        //     executablePath : "./Application/chrome.exe",
+        //     args : ['--no-sandbox', '--disable-setuid-sandbox'],
+        // }
     );
     let page = await browser.newPage();
 
