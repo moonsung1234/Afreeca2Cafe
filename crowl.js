@@ -1,5 +1,6 @@
 
 let puppeteer = require("puppeteer");
+const { Readable } = require('stream'); 
 
 let config = require("./config");
 let env_var = require("./var");
@@ -73,7 +74,7 @@ async function post2image(url, _path) {
     let content = await page.waitForSelector("#contents > div > div > div > div > section > section.post_detail");
     let content_info = await content.boundingBox();
     
-    // save image
+    // get screen stream
     await page.screenshot({
         path : _path,
         clip : content_info

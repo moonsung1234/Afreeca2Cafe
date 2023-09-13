@@ -40,38 +40,6 @@ async function run(type, title, url) {
     }
 }
 
-
-crowl.set_puppeteer()
-.then(() => {
-    (async () => {
-        let temp = new Date();
-        let date = new Date(temp.setHours(temp.getHours() + 9));
-        let type, title, url;
-        
-        console.log(date);
-        
-        try {
-            [type, title, url] = await crowl.get_latest_post();
-            title = "[아프리카 공지] " + title;
-            
-            console.log(type, title, url);
-            
-        } catch(err) {
-            console.error("List Crowling Error : ", err);
-
-            return;
-        }
-
-        if(title + url != before) {
-            await run(type, title, url);
-
-            before = title + url;
-
-            console.log("send!");
-        }
-    })();
-});
-
 let before = null;
 let iter;
 

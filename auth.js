@@ -74,6 +74,7 @@ async function get_new_token() {
             if(!err && res.statusCode == 200) {
                 let json = JSON.parse(body);
                 env.ACCESS_TOKEN = json.access_token || env.ACCESS_TOKEN;
+                env.REFRESH_TOKEN = json.refresh_token || env.REFRESH_TOKEN;
                 env = config.set_env("env.json", env);
                 
                 resolve(body);
@@ -97,10 +98,10 @@ async function write_post(type, title, content, _path) {
             content : _content,
             image : [
                 {
-                    value: fs.createReadStream(path.join(__dirname, _path)),
-                    options: { 
+                    value : fs.createReadStream(path.join(__dirname, _path)),
+                    options : { 
                         filename : _path,  
-                        contentType: "image/" + path.extname(_path).slice(1)
+                        contentType : "image/" + path.extname(_path).slice(1)
                     }
                 }
             ]
