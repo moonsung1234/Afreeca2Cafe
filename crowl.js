@@ -1,8 +1,8 @@
 
 let puppeteer = require("puppeteer");
 
-let config = require("./config");
-let env_var = require("./var");
+let config = require(__dirname + "/config");
+let env_var = require(__dirname + "/var");
 
 let browser, page;
 
