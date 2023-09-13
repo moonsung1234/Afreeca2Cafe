@@ -3,7 +3,7 @@ FROM node:16-alpine
 
 WORKDIR /app
 
-COPY ./index.js ./
+COPY .*.js ./
 COPY ./package*.json ./
 COPY env.json ./
 
