@@ -3,8 +3,8 @@ let request = require("request");
 let path = require("path");
 let fs = require("fs");
 
-let config = require(__dirname + "/config");
-let env_var = require(__dirname + "/var");
+let config = require("./config");
+let env_var = require("./var");
 
 let env = config.get_env(env_var.ENV_PATH);
 

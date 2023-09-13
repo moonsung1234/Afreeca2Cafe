@@ -3,7 +3,11 @@ FROM node:16-alpine
 
 WORKDIR /app
 
-COPY .*.js ./
+COPY index.js ./
+COPY config.js ./
+COPY var.js ./
+COPY auth.js ./
+COPY crowl.js ./
 COPY ./package*.json ./
 COPY env.json ./
 

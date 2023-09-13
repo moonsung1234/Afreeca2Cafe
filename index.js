@@ -1,8 +1,8 @@
 
-let config = require(__dirname + "/config");
-let env_var = require(__dirname + "/var");
-let auth = require(__dirname + "/auth");
-let crowl = require(__dirname + "/crowl");
+let config = require("./config");
+let env_var = require("./var");
+let auth = require("./auth");
+let crowl = require("./crowl");
 
 let env = config.get_env(env_var.ENV_PATH);
 
