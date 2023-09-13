@@ -23,8 +23,11 @@ async function set_puppeteer() {
         height : env_var.DEFAULT_HEIGHT,
         deviceScaleFactor : 1
     });
+}
 
-    return Promise.resolve();
+
+async function close_puppeteer() {
+    await browser.close();
 }
 
 async function get_latest_post() {
@@ -75,14 +78,17 @@ async function post2image(url, _path) {
     let content_info = await content.boundingBox();
     
     // get screen stream
-    await page.screenshot({
-        path : _path,
+    let screen_stream = await page.screenshot({
+        encoding : "binary",
         clip : content_info
     });
+    
+    return screen_stream;
 }
 
 module.exports = {
     set_puppeteer,
+    close_puppeteer,
     get_latest_post,
     post2image
 }

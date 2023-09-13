@@ -86,7 +86,7 @@ async function get_new_token() {
     });
 }
 
-async function write_post(type, title, content, _path) {
+async function write_post(type, title, content, _path, stream) {
     let header = "Bearer " + env.ACCESS_TOKEN;
     let _title = encodeURI(title);
     let _content = encodeURI(content); 
@@ -98,7 +98,7 @@ async function write_post(type, title, content, _path) {
             content : _content,
             image : [
                 {
-                    value : fs.createReadStream(path.join(__dirname, _path)),
+                    value : stream, // fs.createReadStream(path.join(__dirname, _path)),
                     options : { 
                         filename : _path,  
                         contentType : "image/" + path.extname(_path).slice(1)
