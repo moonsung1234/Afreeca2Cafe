@@ -6,13 +6,13 @@ WORKDIR /app
 COPY ./index.js ./
 COPY ./package*.json ./
 COPY env.json ./
-# COPY ./configs/config.json ./configs/config.json
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 RUN apk update
 RUN apk upgrade
 
+# chrome download
 RUN apk add --no-cache udev ttf-freefont chromium
 
 RUN apk --no-cache add tzdata && \
