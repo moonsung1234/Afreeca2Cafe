@@ -81,22 +81,22 @@ iter = setInterval(async () => {
     await crowl.close_puppeteer();
 }, env_var.DELAY);
 
-// app.get("/", (req, res) => {
-//     res.send("afreeca to cafe server");
-// });
+app.get("/", (req, res) => {
+    res.send("afreeca to cafe server");
+});
 
-// app.get("/auth", async (req, res) => {
-//     let code = req.query.code;
-//     env.CODE = code;
-//     env = set_env("env.json", env);
+app.get("/auth", async (req, res) => {
+    let code = req.query.code;
+    env.CODE = code;
+    env = set_env("env.json", env);
 
-//     console.log("code : ", code);
+    console.log("code : ", code);
 
-//     await run();
-// });
+    await run();
+});
 
-// app.listen(3000, () => {
-//     console.log("Server Run!");
-// });
+app.listen(3000, () => {
+    console.log("Server Run!");
+});
 
 
