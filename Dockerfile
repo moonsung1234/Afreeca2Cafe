@@ -8,6 +8,7 @@ COPY config.js ./
 COPY var.js ./
 COPY auth.js ./
 COPY crowl.js ./
+COPY post.png ./
 COPY ./package*.json ./
 COPY env.json ./
 
