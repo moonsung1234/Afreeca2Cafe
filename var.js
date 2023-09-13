@@ -5,7 +5,7 @@ module.exports = {
     DELAY : 1000 * 60, // 1 minute
     ENV_PATH : "env.json",
     POST_PATH : "post.png",
-    EXECUTABLE_PATH : "", // "/usr/bin/chromium-browser",
+    EXECUTABLE_PATH : "/usr/bin/chromium-browser",
     VIDEO_TYPE : Symbol("video"),
     TEXT_TYPE : Symbol("text")
 }
