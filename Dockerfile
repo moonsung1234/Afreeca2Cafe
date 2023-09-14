@@ -4,13 +4,10 @@ FROM node:16-alpine
 WORKDIR /app
 
 COPY index.js ./
-COPY config.js ./
 COPY var.js ./
 COPY auth.js ./
 COPY crowl.js ./
-COPY post.png ./
 COPY ./package*.json ./
-COPY env.json ./
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV LANG=ko_KR.UTF-8

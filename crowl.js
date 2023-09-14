@@ -1,11 +1,13 @@
 
 let puppeteer = require("puppeteer");
-const { Readable } = require('stream'); 
 
-let config = require("./config");
 let env_var = require("./var");
 
-let browser, page;
+let client, browser, page;
+
+function set_client(_client) {
+    client = _client;
+}
 
 async function set_puppeteer() {
     browser = await puppeteer.launch({
@@ -35,17 +37,21 @@ async function get_latest_post() {
     await page.goto("https://bj.afreecatv.com/devil0108/posts/67256714?page=1&months=3M", {
         timeout : 0
     });
-    await page.waitForNavigation();
 
     // get title
-    let title = await page.waitForSelector("#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div.post_conts > a > div > div > strong");
+    let title = await page.waitForSelector("#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div.post_conts > a > div > div > strong", {
+        timeout : 0
+    });
     title = await page.evaluate(element => element.textContent, title);
 
     // get url of first post 
-    let post = await page.waitForSelector("#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div > a");
+    let post = await page.waitForSelector("#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div > a", {
+        timeout : 0
+    });
     let post_url = await page.evaluate(element => element.getAttribute("href"), post);
+    
     let type; 
-
+    
     if(post_url.indexOf("vod.afreecatv.com") != -1) {
         post_url = "https:" + post_url;
         type = env_var.VIDEO_TYPE;
@@ -58,12 +64,11 @@ async function get_latest_post() {
     return [type, title, post_url];
 }
 
-async function post2image(url, _path) {
+async function post2image(url) {
     // move post
     await page.goto(url, {
         timeout : 0
     });
-    await page.waitForNavigation();
 
     // remove ad
     try {
@@ -74,7 +79,9 @@ async function post2image(url, _path) {
     }
 
     // get content info
-    let content = await page.waitForSelector("#contents > div > div > div > div > section > section.post_detail");
+    let content = await page.waitForSelector("#contents > div > div > div > div > section > section.post_detail", {
+        timeout : 0
+    });
     let content_info = await content.boundingBox();
     
     // get screen stream
@@ -87,6 +94,7 @@ async function post2image(url, _path) {
 }
 
 module.exports = {
+    set_client,
     set_puppeteer,
     close_puppeteer,
     get_latest_post,

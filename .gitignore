@@ -1,11 +1,13 @@
 
 # env file
-# env.json
+env.json
 
 # modules
 node_modules
 package-lock.json
 
 # image
-# post.png
+post.png
 
+# js file
+redis.js

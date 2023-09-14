@@ -1,16 +1,20 @@
 
 let request = require("request");
-let path = require("path");
-let fs = require("fs");
 
-let config = require("./config");
 let env_var = require("./var");
 
-let env = config.get_env(env_var.ENV_PATH);
+let client;
+
+function set_client(_client) {
+    client = _client;
+}
 
 async function get_code() {
+    let client_id = await client.get("CLIENT_ID");
+    let state = await client.get("STATE");
+
     let redirect_url = "http://localhost/auth";
-    let api_url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${env.CLIENT_ID}&redirect_uri=${encodeURI(redirect_url)}&state=${env.STATE}`;
+    let api_url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${client_id}&redirect_uri=${encodeURI(redirect_url)}&state=${state}`;
 
     console.log(api_url);
 
@@ -29,24 +33,29 @@ async function get_code() {
 }
 
 async function get_token() {
-    let api_url = `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${env.CLIENT_ID}&client_secret=${env.CLIENT_SECRET}&code=${env.CODE}&state=${env.STATE}`;
+    let client_id = await client.get("CLIENT_ID");
+    let client_secret = await client.get("CLIENT_SECRET");
+    let code = await client.get("CODE");
+    let state = await client.get("STATE");
+
+    let api_url = `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${client_id}&client_secret=${client_secret}&code=${code}&state=${state}`;
     let options = {
         url : api_url,
         headers : {
-            "X-Naver-Client-Id" : env.CLIENT_ID, 
-            "X-Naver-Client-Secret" : env.CLIENT_SECRET 
+            "X-Naver-Client-Id" : client_id, 
+            "X-Naver-Client-Secret" : client_secret 
         }
     }
 
     return new Promise((resolve, reject) => {
-        request.get(options, (err, res, body) => {
+        request.get(options, async (err, res, body) => {
             console.log(res.statusCode);
 
             if(!err && res.statusCode == 200) {
                 let json = JSON.parse(body);
-                env.ACCESS_TOKEN = json.access_token || env.ACCESS_TOKEN;
-                env.REFRESH_TOKEN = json.refresh_token || env.REFRESH_TOKEN;
-                env = config.set_env("env.json", env);
+
+                json.access_token? await client.set("ACCESS_TOKEN", json.access_token) : true;
+                json.refresh_token? await client.set("REFRESH_TOKEN", json.refresh_token) : true;
 
                 resolve(body);
 
@@ -58,25 +67,29 @@ async function get_token() {
 }
 
 async function get_new_token() {
-    let api_url = `https://nid.naver.com/oauth2.0/token?grant_type=refresh_token&client_id=${env.CLIENT_ID}&client_secret=${env.CLIENT_SECRET}&refresh_token=${env.REFRESH_TOKEN}`;
+    let client_id = await client.get("CLIENT_ID");
+    let client_secret = await client.get("CLIENT_SECRET");
+    let refresh_token = await client.get("REFRESH_TOKEN");
+
+    let api_url = `https://nid.naver.com/oauth2.0/token?grant_type=refresh_token&client_id=${client_id}&client_secret=${client_secret}&refresh_token=${refresh_token}`;
     let options = {
         url : api_url,
         headers : {
-            "X-Naver-Client-Id" : env.CLIENT_ID, 
-            "X-Naver-Client-Secret" : env.CLIENT_SECRET 
+            "X-Naver-Client-Id" : client_id, 
+            "X-Naver-Client-Secret" : client_secret
         }
     }
 
     return new Promise((resolve, reject) => {
-        request.get(options, (err, res, body) => {
+        request.get(options, async (err, res, body) => {
             console.log(res.statusCode);
             
             if(!err && res.statusCode == 200) {
                 let json = JSON.parse(body);
-                env.ACCESS_TOKEN = json.access_token || env.ACCESS_TOKEN;
-                env.REFRESH_TOKEN = json.refresh_token || env.REFRESH_TOKEN;
-                env = config.set_env("env.json", env);
-                
+
+                json.access_token? await client.set("ACCESS_TOKEN", json.access_token) : true;
+                json.refresh_token? await client.set("REFRESH_TOKEN", json.refresh_token) : true;
+
                 resolve(body);
 
             } else {
@@ -86,8 +99,12 @@ async function get_new_token() {
     });
 }
 
-async function write_post(type, title, content, _path, stream) {
-    let header = "Bearer " + env.ACCESS_TOKEN;
+async function write_post(type, title, content, stream) {
+    let club_id = await client.get("CLUB_ID");
+    let menu_id = await client.get("MENU_ID");
+    let access_token = await client.get("ACCESS_TOKEN");
+
+    let header = "Bearer " + access_token;
     let _title = encodeURI(title);
     let _content = encodeURI(content); 
     let formData;
@@ -98,10 +115,10 @@ async function write_post(type, title, content, _path, stream) {
             content : _content,
             image : [
                 {
-                    value : stream, // fs.createReadStream(path.join(__dirname, _path)),
+                    value : stream,
                     options : { 
-                        filename : _path,  
-                        contentType : "image/" + path.extname(_path).slice(1)
+                        filename : "post.png",  
+                        contentType : "image/png" 
                     }
                 }
             ]
@@ -115,7 +132,7 @@ async function write_post(type, title, content, _path, stream) {
     }
     
     let options = {
-        url : `https://openapi.naver.com/v1/cafe/${env.CLUB_ID}/menu/${env.MENU_ID}/articles`,
+        url : `https://openapi.naver.com/v1/cafe/${club_id}/menu/${menu_id}/articles`,
         formData,
         headers : {
             "Authorization" : header
@@ -137,6 +154,7 @@ async function write_post(type, title, content, _path, stream) {
 }
 
 module.exports = {
+    set_client,
     get_code,
     get_token,
     get_new_token,
