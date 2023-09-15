@@ -97,6 +97,9 @@ client.on("connect", async () => {
             before = title + url;
     
             console.log("send!");
+        
+        } else {
+            console.log("already send")
         }
     
         await crowl.close_puppeteer();

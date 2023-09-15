@@ -38,17 +38,19 @@ async function get_latest_post() {
         timeout : 0
     });
 
-    // get title
-    let title = await page.waitForSelector("#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div.post_conts > a > div > div > strong", {
-        timeout : 0
-    });
-    title = await page.evaluate(element => element.textContent, title);
+    // get the title
+    let title_selector = "#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div.post_conts > a > div > div > strong";
+    await page.waitForSelector(title_selector, { timeout : 0 });
 
-    // get url of first post 
-    let post = await page.waitForSelector("#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div > a", {
-        timeout : 0
-    });
-    let post_url = await page.evaluate(element => element.getAttribute("href"), post);
+    let title = await page.$(title_selector);
+    title = await title.evaluate(element => element.textContent);
+
+    // get URL of the first post
+    let post_selector = "#contents > div > div > section:nth-child(3) > section > ul > li:nth-child(1) > div.conts > div > a";
+    await page.waitForSelector(post_selector, { timeout: 0 });
+
+    let post = await page.$(post_selector);
+    let post_url = await post.evaluate(element => element.getAttribute("href"));
     
     let type; 
     
@@ -79,9 +81,10 @@ async function post2image(url) {
     }
 
     // get content info
-    let content = await page.waitForSelector("#contents > div > div > div > div > section > section.post_detail", {
-        timeout : 0
-    });
+    let content_selector = "#contents > div > div > div > div > section > section.post_detail";
+    await page.waitForSelector(content_selector, { timeout : 0 });
+
+    let content = await page.$(content_selector);
     let content_info = await content.boundingBox();
     
     // get screen stream
