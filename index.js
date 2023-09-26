@@ -27,7 +27,7 @@ async function run(type, title, url) {
     } catch(err) {
         console.error("Post Crowling Error : ", err);
 
-        return;
+        return false;
     }
 
     try {
@@ -45,6 +45,8 @@ async function run(type, title, url) {
         console.log(await auth.get_new_token());
         console.log(await auth.write_post(type, title, content, stream));
     }
+
+    return true;
 }
 
 
@@ -62,8 +64,8 @@ let iter, env;
 client.on("connect", async () => {
     console.log("Redis Connected!");
 
-    await auth.set_client(client);
-    await crowl.set_client(client);
+    auth.set_client(client);
+    crowl.set_client(client);
     
     iter = setInterval(async () => {
         let temp = new Date();
@@ -77,6 +79,8 @@ client.on("connect", async () => {
     
         } catch(err) {
             console.error("Setting Error : ", err);
+
+            return;
         }
     
         try {
@@ -92,11 +96,11 @@ client.on("connect", async () => {
         }
     
         if(title + url != before) {
-            await run(type, title, url);
-    
-            before = title + url;
-    
-            console.log("send!");
+            if(await run(type, title, url)) {
+                before = title + url;
+
+                console.log("send!");
+            }
         
         } else {
             console.log("already send")
