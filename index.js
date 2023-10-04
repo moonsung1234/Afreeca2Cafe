@@ -80,6 +80,8 @@ client.on("connect", async () => {
         } catch(err) {
             console.error("Setting Error : ", err);
 
+            await crowl.close_puppeteer();
+
             return;
         }
     
@@ -92,6 +94,8 @@ client.on("connect", async () => {
         } catch(err) {
             console.error("List Crowling Error : ", err);
     
+            await crowl.close_puppeteer();
+
             return;
         }
     
@@ -103,7 +107,7 @@ client.on("connect", async () => {
             }
         
         } else {
-            console.log("already send")
+            console.log("already send");
         }
     
         await crowl.close_puppeteer();
