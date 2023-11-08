@@ -73,35 +73,33 @@ client.on("connect", async () => {
         let type, title, url;
         
         console.log(date);
-        
-        try {
-            await crowl.set_puppeteer();
-    
-        } catch(err) {
-            console.error("Setting Error : ", err);
-
-            await crowl.close_puppeteer();
-
-            return;
-        }
     
         try {
-            [type, title, url] = await crowl.get_latest_post();
+            [type, title, url] = await crowl.get_afreeca_notice_info("devil0108");
             title = "[아프리카 공지] " + title;
             
             console.log(type, title, url);
             
         } catch(err) {
-            console.error("List Crowling Error : ", err);
-    
-            await crowl.close_puppeteer();
+            console.error("Notice Getting Error : ", err);
 
             return;
         }
+
+        if(title != before) {
+            try {
+                await crowl.set_puppeteer();
+        
+            } catch(err) {
+                console.error("Setting Error : ", err);
     
-        if(title + url != before) {
+                await crowl.close_puppeteer();
+    
+                return;
+            }
+
             if(await run(type, title, url)) {
-                before = title + url;
+                before = title;
 
                 console.log("send!");
             }

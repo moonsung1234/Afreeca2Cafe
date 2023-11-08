@@ -1,5 +1,6 @@
 
 let puppeteer = require("puppeteer");
+let axios = require("axios");
 
 let env_var = require("./var");
 
@@ -66,6 +67,34 @@ async function get_latest_post() {
     return [type, title, post_url];
 }
 
+async function get_afreeca_notice_info(id) {
+    return new Promise((resolve, reject) => {
+        axios({
+            method: "GET",
+            url: `https://bjapi.afreecatv.com/api/${id}/board/67256714?page=1&per_page=20&field=title%2Ccontents&keyword=&type=all&months=3M`,
+            timeout : 10 * 1000
+        })
+        .then(res => {
+            let data = res.data;
+
+            let notice = data.data[0];
+            let title = notice.title_name;
+            let post_url = `https://bj.afreecatv.com/${id}/post/${notice.title_no}`;
+
+            console.log("[Requestion] afreeca notice");
+
+            resolve([
+                env_var.TEXT_TYPE, 
+                title,
+                post_url
+            ]);
+        })
+        .catch(err => {
+            reject(err);
+        });
+    });
+}
+
 async function post2image(url) {
     // move post
     await page.goto(url, {
@@ -101,5 +130,6 @@ module.exports = {
     set_puppeteer,
     close_puppeteer,
     get_latest_post,
+    get_afreeca_notice_info,
     post2image
 }
