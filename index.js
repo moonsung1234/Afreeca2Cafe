@@ -81,7 +81,7 @@ client.on("connect", async () => {
             console.log(type, title, url);
             
         } catch(err) {
-            console.error("Notice Getting Error : ", err);
+            console.error("Notice Requestion Error : ", err);
 
             return;
         }
